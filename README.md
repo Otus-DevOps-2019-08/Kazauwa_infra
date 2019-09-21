@@ -1,45 +1,61 @@
 # Kazauwa_infra
-## Bastion
 
-Панель управления VPN доступна по адресу https://35.207.103.97.sslip.io/.
+## Table of contents
+
+1. [Bastion](https://github.com/Otus-DevOps-2019-08/Kazauwa_infra/tree/master/wiki/bastion.md)
+
+## Деплой тестового приложения (cloud-testapp)
+
+В этом задании, был опробован функционал создания инстансов через cli утилиту gcloud
+
+### Создание инстанса через gcloud cli
+Пример команды:
+```
+gcloud compute instances create reddit-app\
+  --boot-disk-size=10GB \
+  --image-family ubuntu-1604-lts \
+  --image-project=ubuntu-os-cloud \
+  --machine-type=g1-small \
+  --tags puma-server \
+  --restart-on-failure
+```
+
+### Использование startup скрипта по url
+```
+gcloud compute instances create reddit-app\
+  --boot-disk-size=10GB \
+  --image-family ubuntu-1604-lts \
+  --image-project=ubuntu-os-cloud \
+  --machine-type=g1-small \
+  --tags puma-server \
+  --restart-on-failure \
+  --metadata startup-script-url=https://gist.githubusercontent.com/Kazauwa/03313f9ea328bb3d1bc2592c24927d4e/raw/3d38029f12e7fd25908f11a98d30b6142ea5417f/otus_cloud-testapp_startup.sh
+```
+
+### Использование startup скрипта из локального файла
+```
+gcloud compute instances create reddit-app\
+  --boot-disk-size=10GB \
+  --image-family ubuntu-1604-lts \
+  --image-project=ubuntu-os-cloud \
+  --machine-type=g1-small \
+  --tags puma-server \
+  --restart-on-failure \
+  --metadata-from-file startup-script=./startup.sh
+```
+
+### Создание правила для файервола
+```
+gcloud compute firewall-rules create default-puma-server \
+  --allow=tcp:9292 \
+  --target-tags=puma-server
+```
+
+## CI config
+
 ```
 bastion_IP = 35.207.103.97
 someinternalhost_IP = 10.156.0.3
+testapp_IP = 34.89.113.181
+testapp_port = 9292
 ```
-
-### Прокидывание ssh во внутреннюю сеть через bastion хост
-
-Для этого необходимо отредактировать файл `~/.ssh/config` и внести туда следующие настройки:
-```
-Host bastion
-   HostName       <внешний ip адрес бастиона>
-   User           <имя юзера>
-   IdentityFile   ~/.ssh/<закрытый ключ>
-
-Host 10.156.0.*
-   User           <имя юзера>
-   IdentityFile   ~/.ssh/<закрытый ключ>
-   ProxyCommand   ssh -W %h:%p  <имя юзера>@bastion
-```
-
-Теперь, команда `ssh 10.156.0.<0-255>` будет создавать подключение к машине внутри приватной сети через бастион. Так как в настройках мы указали `Host 10.156.0.*`, эта конфигурация будет работать для любого адреса подсети `10.156.0.0/24`.
-
-
-### Прокидывание ssh во внутреннюю сеть через bastion хост для конкретного хоста
-
-Если хочется указать какую-то конкретную машину и воспользоваться всеми прелестями автодополнения, достаточно немного изменить конфигурацию выше:
-
-```
-Host bastion
-   HostName       <внешний ip адрес бастиона>
-   User           <имя юзера>
-   IdentityFile   ~/.ssh/<закрытый ключ>
-
-Host someinternalhost
-   HostName       <ip адрес машины из приватной сети>
-   User           <имя юзера>
-   IdentityFile   ~/.ssh/<закрытый ключ>
-   ProxyCommand   ssh -W %h:%p  <имя юзера>@bastion
-```
-
-Теперь, команда `ssh someinternalhost` будет создавать подключение к конкретному хосту через бастион.
