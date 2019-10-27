@@ -3,52 +3,26 @@
 ## Table of contents
 
 1. [Bastion](https://github.com/Otus-DevOps-2019-08/Kazauwa_infra/tree/master/wiki/bastion.md)
+2. [Cloud VM](https://github.com/Otus-DevOps-2019-08/Kazauwa_infra/tree/master/wiki/cloud_vm.md)
 
-## Деплой тестового приложения (cloud-testapp)
+## Packer
+В этом задании был создан образ с запечённым приложением reddit, который готов к разворачиванию в GCP
 
-В этом задании был опробован функционал создания инстансов через cli утилиту gcloud. Startup скрипт для автодеплоя при создании инстанса находится в файле `startup.sh`.
+### Как создать образ
+В папке `packer` находится файл `ubuntu16.json`. Это и есть шаблон для packer, с помощью которого создаётся образ. Для сборки требуется указать некоторые переменные, которые можно положить в `variables.json`:
 
-### Создание инстанса через gcloud cli
-Пример команды:
-```
-gcloud compute instances create reddit-app\
-  --boot-disk-size=10GB \
-  --image-family ubuntu-1604-lts \
-  --image-project=ubuntu-os-cloud \
-  --machine-type=g1-small \
-  --tags puma-server \
-  --restart-on-failure
-```
+* project_id - id проекта в GCP
+* source_image_family - базовый образ
+* ssh_username - имя пользователя, который используется для доступа по ssh
+* machine_type - тип инстанса
+* disk_size - размер жёсткого диска
+* disk_type - тип жёсткого диска: обычный или ssd
+* network - имя VPC сети
+* tags - теги правил файервола
 
-### Использование startup скрипта по url
+Для сборки используется следующая команда:
 ```
-gcloud compute instances create reddit-app\
-  --boot-disk-size=10GB \
-  --image-family ubuntu-1604-lts \
-  --image-project=ubuntu-os-cloud \
-  --machine-type=g1-small \
-  --tags puma-server \
-  --restart-on-failure \
-  --metadata startup-script-url=https://gist.githubusercontent.com/Kazauwa/03313f9ea328bb3d1bc2592c24927d4e/raw/3d38029f12e7fd25908f11a98d30b6142ea5417f/otus_cloud-testapp_startup.sh
-```
-
-### Использование startup скрипта из локального файла
-```
-gcloud compute instances create reddit-app\
-  --boot-disk-size=10GB \
-  --image-family ubuntu-1604-lts \
-  --image-project=ubuntu-os-cloud \
-  --machine-type=g1-small \
-  --tags puma-server \
-  --restart-on-failure \
-  --metadata-from-file startup-script=./startup.sh
-```
-
-### Создание правила для файервола
-```
-gcloud compute firewall-rules create default-puma-server \
-  --allow=tcp:9292 \
-  --target-tags=puma-server
+packer build -var-file variables.json ./ubuntu16.json
 ```
 
 ## CI config

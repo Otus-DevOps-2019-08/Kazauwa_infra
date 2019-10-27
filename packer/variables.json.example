@@ -1,0 +1,6 @@
+{
+    "project_id": "infra-123456",
+    "source_image_family": "ubuntu-1604-lts",
+    "ssh_username": "appuser",
+    "machine_type": "bazooka-1"
+}
