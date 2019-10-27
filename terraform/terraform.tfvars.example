@@ -1,0 +1,9 @@
+project          = "your-project-id"
+region           = "europe-west1"
+service_port     = 8080
+zone             = "europe-west1-a"
+tags             = ["some-app"]
+public_key_path  = "/path/to/your/key.pub"
+private_key_path = "/path/to/your/key"
+disk_image       = "ubuntu1604"
+ssh_users        = ["user", "user2"]
