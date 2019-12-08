@@ -1,0 +1,25 @@
+---
+- name: Install Mongo DB
+  hosts: all
+  become: true
+  tasks:
+  - name: Add Mongo DB repo public key
+    apt_key:
+      url: https://www.mongodb.org/static/pgp/server-4.2.asc
+
+  - name: Add Mongo DB repo
+    apt_repository:
+      repo: deb [ arch=amd64 ] http://repo.mongodb.org/apt/ubuntu xenial/mongodb-org/4.2 multiverse
+
+  - name: Install Mongo DB
+    apt:
+      name: mongodb-org
+      state: present
+      update_cache: yes
+    
+  - name: Start Mongo DB
+    service:
+      name: mongod
+      state: started
+      enabled: yes
+      daemon_reload: yes

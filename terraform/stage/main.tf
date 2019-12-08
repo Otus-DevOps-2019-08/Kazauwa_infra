@@ -1,5 +1,5 @@
 terraform {
-  required_version = "0.12.8"
+  required_version = "0.12.12"
 }
 
 provider "google" {
@@ -25,7 +25,6 @@ module "db" {
   db_disk_image   = var.db_disk_image
   ssh_users       = var.ssh_users
 }
-
 
 module "vpc" {
   source        = "../modules/vpc"
