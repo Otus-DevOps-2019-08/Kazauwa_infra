@@ -1,29 +1,21 @@
-terraform {
-  required_version = "0.12.8"
-}
-
-provider "google" {
-  version = "2.15"
-
-  project = var.project
-  region  = var.region
-}
-
 resource "google_compute_instance" "app" {
   name         = "reddit-app-${count.index}"
   machine_type = "f1-micro"
   zone         = var.zone
   tags         = var.tags
   count        = var.target_count
+
   boot_disk {
     initialize_params {
-      image = var.disk_image
+      image = var.app_disk_image
     }
   }
 
   network_interface {
     network = "default"
-    access_config {}
+    access_config {
+      nat_ip = google_compute_address.app_ip.address
+    }
   }
 
   metadata = {
@@ -37,15 +29,10 @@ resource "google_compute_instance" "app" {
     agent       = false
     private_key = file(var.private_key_path)
   }
+}
 
-  provisioner "file" {
-    source      = "files/puma.service"
-    destination = "/tmp/puma.service"
-  }
-
-  provisioner "remote-exec" {
-    script = "files/deploy.sh"
-  }
+resource "google_compute_address" "app_ip" {
+  name = "reddit-app-ip"
 }
 
 resource "google_compute_firewall" "firewall_puma" {
