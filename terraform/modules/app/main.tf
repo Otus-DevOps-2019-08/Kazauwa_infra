@@ -40,7 +40,7 @@ resource "google_compute_firewall" "firewall_puma" {
   network = "default"
   allow {
     protocol = "tcp"
-    ports    = [var.service_port]
+    ports    = [var.service_port, 80]
   }
   source_ranges = ["0.0.0.0/0"]
   target_tags   = var.tags
