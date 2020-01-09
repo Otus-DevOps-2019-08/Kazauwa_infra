@@ -6,3 +6,11 @@ variables.json
 .terraform/
 *.retry
 jdauphant.nginx
+
+# Vagrant and Molecule
+.vagrant/
+*.log
+*.pyc
+.molecule
+.cache
+.pytest_cache
